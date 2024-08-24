@@ -1,6 +1,16 @@
 <?php
 require_once('../koneksi/koneksi.php');
-$query = "SELECT  * FROM kategori ORDER BY idkategori ASC";
+
+// cari data 
+$cari = "-1";
+if(isset($_GET['cari'])){
+    $cari = $_GET['cari'];
+    $query = sprintf("SELECT  * FROM kategori WHERE namakategori LIKE %s ORDER BY idkategori ASC",
+    inj($koneksi, "%" .$cari . "%", "text"));
+}else{
+    $query = "SELECT  * FROM kategori ORDER BY idkategori ASC";
+}
+
 $eksekusi = mysqli_query($koneksi, $query) or die(errorQuery(mysqli_error($koneksi)));
 $row = mysqli_fetch_assoc($eksekusi);
 $totalRows = mysqli_num_rows($eksekusi);
@@ -9,6 +19,7 @@ $totalRows = mysqli_num_rows($eksekusi);
 
 <h3>Daftar kategori</h3>
 <p><a href="insert.php">Kategori</a></p>
+
 <form action="" method="get">
     Cari Data : <input type="text" name="cari" id="">
     <button type="submit">Search</button>

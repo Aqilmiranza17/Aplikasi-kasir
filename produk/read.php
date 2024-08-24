@@ -1,9 +1,22 @@
 <?php
 require_once('../koneksi/koneksi.php');
 
-$query = "SELECT produk.*, namakategori FROM produk
-LEFT JOIN kategori ON idkategori = kategori
-ORDER BY idproduk ASC";
+// cari data 
+$cari = "-1";
+if(isset($_GET['cari'])){
+    $cari = $_GET['cari'];
+    $query = sprintf("SELECT produk.*, namakategori FROM produk
+    LEFT JOIN kategori ON idkategori = kategori
+    WHERE kategori.namakategori LIKE %s OR produk.namaproduk LIKE %s 
+    ORDER BY idproduk ASC",
+    inj($koneksi, "%" .$cari . "%", "text"),
+    inj($koneksi, "%" .$cari . "%", "text"));
+}else {
+    $query = "SELECT produk.*, namakategori FROM produk
+    LEFT JOIN kategori ON idkategori = kategori
+    ORDER BY idproduk ASC";
+}
+
 $eksekusi = mysqli_query($koneksi, $query) or die(errorQuery(mysqli_error($koneksi)));
 $row = mysqli_fetch_assoc($eksekusi);
 $totalRows = mysqli_num_rows($eksekusi);
@@ -20,7 +33,13 @@ $totalRows = mysqli_num_rows($eksekusi);
 <body>
 
 <h3>Daftar Produk</h3>
-<a href="insert.php">Produk</a>
+<p><a href="insert.php">Produk</a></p>
+<form action="" method="get">
+    Cari Data Barang : <input type="text" name="cari" id="">
+    <button type="submit">Search</button>
+</form>
+<br>
+<?php if($totalRows > 0) {?>
 <table border="1">
 <tr>
    <td>No.</td>
@@ -46,6 +65,9 @@ $totalRows = mysqli_num_rows($eksekusi);
 </tr>
 <?php $no++; }while($row = mysqli_fetch_assoc($eksekusi));?>
 </table>
+<?php }else {
+    echo "Data Produk tidak tersedia";
+}?>
 
 </body>
 </html>
